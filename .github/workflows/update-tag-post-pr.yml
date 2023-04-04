@@ -1,3 +1,8 @@
+name: Update tag
+
+on:
+  pull_request:
+    types: [closed]
 jobs:
   update-tag:
     runs-on: ubuntu-latest
