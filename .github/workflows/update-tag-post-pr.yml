@@ -1,0 +1,13 @@
+jobs:
+  update-tag:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update tag
+        run: |
+          git tag -d v1.0.0
+          git tag v1.0.0
+          git push origin :v1.0.0
+          git push --tags
