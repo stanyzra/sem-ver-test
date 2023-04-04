@@ -6,7 +6,7 @@ on:
 jobs:
   update-tag:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop'
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'husky-tests'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
