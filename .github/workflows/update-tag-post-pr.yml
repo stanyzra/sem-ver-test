@@ -12,7 +12,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Update tag
         run: |
-          git tag -d v1.0.0
           git tag v1.0.0
           git push origin :v1.0.0
           git push --tags
