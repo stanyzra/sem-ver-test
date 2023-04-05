@@ -1,11 +1,10 @@
 #!/usr/bin/env sh
 
-# commit_msg="feat: a new feature"
 commit_msg=$(git log -1 --pretty=%B)
 echo $commit_msg
 feat=${commit_msg%%:*}
 
-current_project_version=$(git tag)
+current_project_version=$(git describe --abbrev=0 --tags)
 echo "current_project_version: $current_project_version"
 MAJOR=$(echo $current_project_version | cut -d. -f1)
 MINOR=$(echo $current_project_version | cut -d. -f2)
