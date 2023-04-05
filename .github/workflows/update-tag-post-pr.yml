@@ -1,18 +1,20 @@
-name: Update tag
+name: Update tag on merge
 
 on:
   pull_request:
     types: [closed]
+
 jobs:
-  update-tag:
+  update_tag:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
-      - name: Update tag
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Update tag version
+        run: ./update_tag.sh
         env:
           GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
-        run: |
-          git tag v1.0.0
-          git push --tags
