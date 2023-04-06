@@ -18,16 +18,8 @@ jobs:
       - name: 'Get Previous tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
-          
-      - name: Show Tag
-        id: display
-        run: |
-          echo 'Output from Find Tag: ${{ steps.previoustag.outputs.tag }}'
-      
-      - name: Get current tag
-        run: echo ::set-env name=TAG::$(git describe --abbrev=0 --tags)
 
       - name: Update tag version
-        run: ./update_tag.sh ${{ env.TAG }}
+        run: ./update_tag.sh ${{ steps.previoustag.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
