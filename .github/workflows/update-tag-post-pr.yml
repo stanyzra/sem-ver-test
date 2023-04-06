@@ -5,14 +5,6 @@ on:
     types: [closed]
 
 jobs:
-  github-example-tags:
-    runs-on: ubuntu-latest
-    steps:
-     - name: GitHub Tag Name example
-       run: |
-         echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
-         echo "Tag name from github.ref_name: ${{  github.ref_name }}"
-
   update_tag:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
@@ -21,6 +13,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          
+      - name: Set env for tag
+        run: echo "TAG=$(GITHUB_REF#refs/*/)" >> $GITHUB_ENV
+
+      - name: Test git tag
+        run: echo $TAG
       
       - name: Get current tag
         run: echo ::set-env name=TAG::$(git describe --abbrev=0 --tags)
