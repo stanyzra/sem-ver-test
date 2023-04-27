@@ -18,23 +18,32 @@ while getopts ":t:b:" opt; do
   esac
 done
 
-current_commit_message="$(get_commit_message HEAD)"
-# echo $current_commit_message
-current_type=${current_commit_message%%:*}
+# current_commit_message="$(get_commit_message HEAD)"
+current_commit_message="feat(abc)/C2V1-123: my tiny message 2"
 
-previous_commit_message="$(get_commit_message HEAD^^)"
+current_type=$(echo $current_commit_message | cut -d '(' -f 1)
+
+current_jira_id=$(echo $current_commit_message | cut -d '/' -f 2 | cut -d ':' -f 1)
+
+# previous_commit_message="$(get_commit_message HEAD^^)"
+previous_commit_message="feat(abc)/C2V1-123: my tiny message 1"
+
+previous_jira_id=$(echo $previous_commit_message | cut -d '/' -f 2 | cut -d ':' -f 1)
+
 # echo $previous_commit_message
-previous_type=${previous_commit_message%%:*}
+previous_type=$(echo $previous_commit_message | cut -d '(' -f 1)
 
 # current_project_version=$(git describe --abbrev=0 --tags)
 current_project_version="1.3.0-rc.3"
-echo "current_project_version: $current_project_version"
 MAJOR=$(echo $current_project_version | cut -d. -f1 | sed 's/v//')
 MINOR=$(echo $current_project_version | cut -d. -f2)
 PATCH=$(echo $current_project_version | cut -d. -f3)
 
-echo "current_type: $current_commit_message"
-echo "previous_type: $previous_commit_message"
+echo "current_type: $current_type"
+echo "current_jira_id: $current_jira_id"
+echo "current_project_version: $current_project_version"
+echo "previous_type: $previous_type"
+echo "previous_jira_id: $previous_jira_id"
 
 if [ "$branch" = "development" ]; then
     echo "mudar a versão e adicionar rc"
