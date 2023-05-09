@@ -16,7 +16,7 @@ echo $previous_commit_branch
 echo $type
 echo $jira_task
 echo $last_tag
-echo $MAJOR
+echo $MAJOR  
 echo $MINOR
 echo $PATCH
 
