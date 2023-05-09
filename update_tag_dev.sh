@@ -12,7 +12,7 @@ MINOR=$(echo $last_tag | cut -d. -f2)
 PATCH=$(echo $last_tag | cut -d. -f3 | cut -d'-' -f1)
 echo $current_commit_message
 echo $branch_name
-echo $previous_commit_branch
+echo $previous_commit_branch 
 echo $type
 echo $jira_task
 echo $last_tag

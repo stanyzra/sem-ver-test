@@ -2,24 +2,45 @@ name: Update tag on merge
 
 on:
   pull_request:
-    types: [closed]
+    types: [opened, reopened, closed]
 
 jobs:
-  update_tag:
+  obter-informacoes-de-branch:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
-          
-      - name: 'Get Previous tag'
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-
-      - name: Update tag version
-        run: ./update_tag.sh ${{ steps.previoustag.outputs.tag }}
+      
+      - name: Obter informações de branch
+        run: |
+          if [ "${{ github.event.action }}" = "closed" ]; then
+            if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+              echo "O pull request #${{ github.event.pull_request.number }} foi mesclado na branch ${{ github.event.pull_request.base.ref }} a partir da branch ${{ github.event.pull_request.head.ref }}."
+            else
+              echo "O pull request #${{ github.event.pull_request.number }} foi fechado sem ser mesclado."
+            fi
+          else
+            echo "O pull request #${{ github.event.pull_request.number }} foi aberto ou reaberto na branch ${{ github.event.pull_request.head.ref }}."
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+
+  # update_tag:
+  #   runs-on: ubuntu-latest
+  #   if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'development'
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #         ref: ${{ github.event.pull_request.head.ref }}
+          
+  #     - name: 'Get Previous tag'
+  #       id: previoustag
+  #       uses: "WyriHaximus/github-action-get-previous-tag@v1"
+
+  #     - name: Update tag version
+  #       shell: bash
+  #       run: ./update_tag.sh ${{ steps.previoustag.outputs.tag }}
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
