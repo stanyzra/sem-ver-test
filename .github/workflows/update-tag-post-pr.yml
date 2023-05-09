@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+      teste: ""
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,7 +20,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
 
+      - name: Determine branch name
+        id: determine-branch-name
+        run: echo "BRANCH_NAME=$(echo $GITHUB_REF | sed -e 's,.*/\(.*\),\1,')" >> $GITHUB_ENV
+
       - name: PR merged in main
+        id: main_versioning
         if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' }}
         uses: paulhatch/semantic-version@v5.0.2
         with:
@@ -27,9 +33,11 @@ jobs:
           major_pattern: "BREAKING CHANGE:"
           minor_pattern: "feat:"
           version_format: "${major}.${minor}.${patch}"
+        env:
+          teste: "123"
         
-
       - name: PR merged in development
+        id: development_versioning
         if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'development' }}
         uses: paulhatch/semantic-version@v5.0.2
         with:
@@ -43,5 +51,10 @@ jobs:
         run: |
           git config --local user.email "stany@collection.com.br"
           git config --local user.name "Collec_CICD"
-          git tag -a ${{ steps.semantic.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }}: ${{ steps.semantic.outputs.version }}"
-          git push origin ${{ steps.semantic.outputs.version }}
+          if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
+            git tag -a ${{ steps.main_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }}: ${{ steps.main_versioning.outputs.version }}"
+            git push origin ${{ steps.main_versioning.outputs.version }}
+          elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
+            git tag -a ${{ steps.development_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }}: ${{ steps.development_versioning.outputs.version }}"
+            git push origin ${{ steps.development_versioning.outputs.version }}
+          fi
