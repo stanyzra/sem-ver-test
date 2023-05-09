@@ -37,9 +37,11 @@ jobs:
           major_pattern: "BREAKING CHANGE:"
           minor_pattern: "feat:"
           version_format: "${major}.${minor}.${patch}-RC.${increment}"
-
-      # - name: Update tag version
-      #   shell: bash
-      #   run: ./update_tag.sh ${{ steps.previoustag.outputs.tag }}
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+        
+      - name: Create version tag
+        if: ${{ github.event.pull_request.merged == true }}
+        run: |
+          git config --local user.email "stany@collection.com.br"
+          git config --local user.name "Collec_CICD"
+          git tag -a ${{ steps.semantic.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }}: ${{ steps.semantic.outputs.version }}"
+          git push origin ${{ steps.semantic.outputs.version }}
