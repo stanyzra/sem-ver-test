@@ -19,10 +19,13 @@ jobs:
         with:
           name: tag-artifact
 
+      - name: Display structure of downloaded files
+        run: ls -R
+
       - name: Load Tag from Artifact
         id: load-tag
         run: |
-          echo "TAG=$(cat tag-artifact/tag)" >> $GITHUB_ENV
+          echo "TAG=$(cat tag-artifact/${{ github.workspace }}/tag/tag.txt)" >> $GITHUB_ENV
 
       - name: Docker Login
         uses: docker/login-action@v2.1.0

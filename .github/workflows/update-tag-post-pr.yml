@@ -59,9 +59,15 @@ jobs:
             git push origin $NEW_TAG
           fi
 
+      - name: Create Tag file
+        if: ${{ github.event.pull_request.merged == true }}
+        run: |
+          mkdir -p ${{ github.workspace }}/tag
+          echo ${{ env.NEW_TAG }} > ${{ github.workspace }}/tag/tag.txt
+
       - name: Upload Tag Artifact
         if: ${{ github.event.pull_request.merged == true }}
         uses: actions/upload-artifact@v3
         with:
           name: tag-artifact
-          path: ${{ env.NEW_TAG }}
+          path: ${{ github.workspace }}/tag/tag.txt
