@@ -49,9 +49,11 @@ jobs:
           git config --local user.email "stany@collection.com.br"
           git config --local user.name "Collec_CICD"
           if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
-            git tag -a ${{ steps.main_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ steps.main_versioning.outputs.version }}"
-            git push origin ${{ steps.main_versioning.outputs.version }}
+            echo "NEW_TAG=$(./sum_increment ${{ steps.main_versioning.outputs.increment }} ${{ steps.main_versioning.outputs.version }})" >> $GITHUB_ENV
+            git tag -a ${{ steps.main_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ env.NEW_TAG }}"
+            git push origin ${{ env.NEW_TAG }}
           elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
-            git tag -a ${{ steps.development_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ steps.development_versioning.outputs.version }}"
-            git push origin ${{ steps.development_versioning.outputs.version }}
+            echo "NEW_TAG=$(./sum_increment ${{ steps.development_versioning.outputs.increment }} ${{ steps.development_versioning.outputs.version }})" >> $GITHUB_ENV
+            git tag -a ${{ steps.development_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ env.NEW_TAG }}"
+            git push origin ${{ env.NEW_TAG }}
           fi
