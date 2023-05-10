@@ -45,8 +45,8 @@ jobs:
           minor_pattern: "feat:"
           version_format: "${major}.${minor}.${patch}-RC.${increment}"
           
-        # echo "{name}={value}" >> "$GITHUB_OUTPUT"
       - name: Create version tag
+        id: create_tag
         if: ${{ github.event.pull_request.merged == true }}
         run: |
           git config --local user.email "stanyhelberth@gmail.com"
