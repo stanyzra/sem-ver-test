@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+    outputs:
+      NEW_TAG: ${{ steps.create_tag.outputs.NEW_TAG }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -42,19 +44,20 @@ jobs:
           major_pattern: "BREAKING CHANGE:"
           minor_pattern: "feat:"
           version_format: "${major}.${minor}.${patch}-RC.${increment}"
-        
+          
+        # echo "{name}={value}" >> "$GITHUB_OUTPUT"
       - name: Create version tag
         if: ${{ github.event.pull_request.merged == true }}
         run: |
           git config --local user.email "stanyhelberth@gmail.com"
           git config --local user.name "Collec_CICD"
           if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
-            echo "NEW_TAG=$(echo ${{ steps.main_versioning.outputs.version }})" >> $GITHUB_ENV
+            echo "NEW_TAG=$(echo ${{ steps.main_versioning.outputs.version }})" >> $GITHUB_OUTPUT
             git tag -a ${{ steps.main_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ steps.main_versioning.outputs.version }}"
             git push origin ${{ steps.main_versioning.outputs.version }}
           elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
             NEW_TAG=$(./sum_increment.sh ${{ steps.development_versioning.outputs.increment }} ${{ steps.development_versioning.outputs.version }})
-            echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+            echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
             git tag -a $NEW_TAG -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: $NEW_TAG"
             git push origin $NEW_TAG
           fi
@@ -81,4 +84,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/collection-dev-api:${{ env.NEW_TAG }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/collection-dev-api:${{ needs.update_tag.outputs.NEW_TAG }}
