@@ -58,3 +58,10 @@ jobs:
             git tag -a $NEW_TAG -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: $NEW_TAG"
             git push origin $NEW_TAG
           fi
+
+      - name: Upload Tag Artifact
+        if: ${{ github.event.pull_request.merged == true }}
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: tag-artifact
+          path: ${{ env.NEW_TAG }}
