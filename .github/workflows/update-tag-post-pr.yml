@@ -45,9 +45,8 @@ jobs:
         
       - name: Create version tag
         if: ${{ github.event.pull_request.merged == true }}
-        shell: bash
         run: |
-          git config --local user.email "stany@collection.com.br"
+          git config --local user.email "stanyhelberth@gmail.com"
           git config --local user.name "Collec_CICD"
           if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
             NEW_TAG=${{ steps.main_versioning.outputs.version }}
