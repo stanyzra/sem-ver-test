@@ -49,7 +49,7 @@ jobs:
           git config --local user.email "stanyhelberth@gmail.com"
           git config --local user.name "Collec_CICD"
           if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
-            echo "NEW_TAG=${{ steps.main_versioning.outputs.version }}" >> $GITHUB_ENV
+            echo "NEW_TAG=$(echo ${{ steps.main_versioning.outputs.version }})" >> $GITHUB_ENV
             git tag -a ${{ steps.main_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ steps.main_versioning.outputs.version }}"
             git push origin ${{ steps.main_versioning.outputs.version }}
           elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
