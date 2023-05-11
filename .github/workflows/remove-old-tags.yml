@@ -18,7 +18,6 @@ jobs:
 
       - name: Verificar número de tags
         id: tags
-        # echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
         run: |
           tags_count=$(git tag --sort=-creatordate | wc -l)
           echo "tag_count=$tags_count" >> $GITHUB_OUTPUT
