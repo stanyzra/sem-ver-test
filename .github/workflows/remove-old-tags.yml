@@ -6,7 +6,7 @@ on:
       - '**'
 
 jobs:
-  remove_old_tags:
+  cleanup:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
@@ -16,25 +16,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: List existing tags
+      - name: Verificar número de tags
+        id: tags
+        # echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
         run: |
-          git fetch --prune --tags
-          EXISTING_TAGS=$(git tag --sort=-v:refname)
-          echo "EXISTING_TAGS=$EXISTING_TAGS" >> $GITHUB_ENV
-          echo "Existing tags: $EXISTING_TAGS"
+          tags_count=$(git tag --sort=-creatordate | wc -l)
+          echo "tag_count=$tags_count" >> $GITHUB_OUTPUT
 
-      - name: Delete old tags
+      - name: Limpar Tags Antigas
+        if: ${{ steps.tags.outputs.tag_count > 10 }}
         run: |
-          MAX_TAGS=10  # Número máximo de tags
-          TAGS_TO_DELETE=$(echo "$EXISTING_TAGS" | tail -n +$((MAX_TAGS + 1)))
-          echo "TAGS_TO_DELETE=$TAGS_TO_DELETE" >> $GITHUB_ENV
-          echo "Tags to delete: $TAGS_TO_DELETE"
-          for TAG in $TAGS_TO_DELETE; do
-            git tag -d $TAG
-          done
-
-      - name: Delete old tags (remote)
-        run: |
-          for TAG in $TAGS_TO_DELETE; do
-            git push --delete origin $TAG
-          done
+          git tag --sort=-creatordate | tail -n +11 | xargs -I{} git push --delete origin {}
