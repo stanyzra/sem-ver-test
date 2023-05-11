@@ -66,12 +66,14 @@ jobs:
         run: |
           git fetch --prune --tags
           EXISTING_TAGS=$(git tag --sort=-v:refname)
+          echo "EXISTING_TAGS=$EXISTING_TAGS" >> $GITHUB_ENV
           echo "Existing tags: $EXISTING_TAGS"
 
       - name: Delete old tags
         run: |
           MAX_TAGS=10  # Número máximo de tags
           TAGS_TO_DELETE=$(echo "$EXISTING_TAGS" | tail -n +$((MAX_TAGS + 1)))
+          echo "TAGS_TO_DELETE=$TAGS_TO_DELETE" >> $GITHUB_ENV
           echo "Tags to delete: $TAGS_TO_DELETE"
           for TAG in $TAGS_TO_DELETE; do
             git tag -d $TAG
