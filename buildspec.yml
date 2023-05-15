@@ -2,11 +2,13 @@ version: 0.2
 
 phases:
   pre_build:
-    commands:
-      - echo Logging in to Amazon ECR...
-      - aws --version
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION
-      - REPOSITORY_URI=724302267832.dkr.ecr.us-east-1.amazonaws.com/collection-docker-images
+    commands: |
+      echo Logging in to Amazon ECR...
+      aws --version
+      aws ecr get-login-password --region $AWS_DEFAULT_REGION
+      DOCKER_USERNAME=$(aws ssm get-parameter --name collection-docker-username --with-decryption --query "Parameter.Value" --output text)
+      DOCKER_PASSWORD=$(aws ssm get-parameter --name collection-docker-password --with-decryption --query "Parameter.Value" --output text)
+      REPOSITORY_URI=724302267832.dkr.ecr.us-east-1.amazonaws.com/collection-docker-images | docker login --username $DOCKER_USERNAME --password-stdin $DOCKER_PASSWORD
   build:
     commands:
       - echo Build started on `date`
