@@ -80,7 +80,10 @@ jobs:
         id: read_tags
         if: ${{ steps.tags.outputs.tag_count > 10 }}
         run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "$(cat latest_tags.txt)<<$EOF" >> $GITHUB_OUTPUT
           echo "latest_tags=$(cat latest_tags.txt)" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Clean old tags
         if: ${{ steps.tags.outputs.tag_count > 10 }}
