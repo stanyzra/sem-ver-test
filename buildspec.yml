@@ -11,16 +11,16 @@ phases:
       REPOSITORY_URI=$ECR_URI/collection-docker-images
   build:
     commands: |
-      echo Checking branch
-      BRANCH=$(git rev-parse --abbrev-ref HEAD)
+      echo $CODEBUILD_SOURCE_VERSION
       echo Getting project tag
       TAG=$(git describe --tags --abbrev=0)
-      echo Build started on `date`
-      echo Building the Docker image...
-      docker build -t $REPOSITORY_URI:latest .
-      docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:teste
-  post_build:
-    commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker images...
-      - docker push $REPOSITORY_URI:latest
+      echo $TAG
+  #     echo Build started on `date`
+  #     echo Building the Docker image...
+  #     docker build -t $REPOSITORY_URI:latest .
+  #     docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:teste
+  # post_build:
+  #   commands: |
+  #     echo Build completed on `date`
+  #     echo Pushing the Docker images...
+  #     docker push $REPOSITORY_URI:latest
