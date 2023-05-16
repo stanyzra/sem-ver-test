@@ -89,14 +89,14 @@ jobs:
         run: |
           # git fetch --prune --unshallow --tags
           # git fetch origin +refs/tags/*:refs/tags/*
-          git tag --sort=-creatordate | tail -n +11 | xargs -r git tag -d
+          git tag --sort=-creatordate | grep RC | tail -n +11 | xargs -r git tag -d
 
       - name: Limit tags for main branch
         if: github.event.pull_request.base.ref == 'main'
         run: |
           # git fetch --prune --unshallow --tags
           # git fetch origin +refs/tags/*:refs/tags/*
-          git tag --sort=-creatordate | tail -n +6 | xargs -r git tag -d
+          git tag --sort=-creatordate | grep -v RC |tail -n +6 | xargs -r git tag -d
 
       - name: Push updated tags
         run: git push --tags --force
