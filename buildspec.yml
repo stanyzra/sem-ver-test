@@ -5,8 +5,8 @@ phases:
     commands: |
       echo Logging in to Amazon ECR...
       aws --version
-      aws ecr get-login-password --region $AWS_DEFAULT_REGION
-      REPOSITORY_URI=724302267832.dkr.ecr.us-east-1.amazonaws.com/collection-docker-images | docker login --username AWS --password-stdin 724302267832.dkr.ecr.us-east-1.amazonaws.com
+      aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 724302267832.dkr.ecr.us-east-1.amazonaws.com
+      REPOSITORY_URI=724302267832.dkr.ecr.us-east-1.amazonaws.com/collection-docker-images
   build:
     commands:
       - echo Build started on `date`
