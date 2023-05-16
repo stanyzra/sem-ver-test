@@ -64,8 +64,8 @@ jobs:
       - name: Check tags number
         id: tags
         run: |
-          tags_count=$(git tag --sort=-creatordate | wc -l)
-          echo "::set-output name=tag_count::$tags_count"
+          tags_count=$(git tag --sort=-creatordate | wc -l)"
+          echo "tag_count=$tags_count" >> $GITHUB_OUTPUT
 
       - name: Filter tags
         id: filtered_tags
