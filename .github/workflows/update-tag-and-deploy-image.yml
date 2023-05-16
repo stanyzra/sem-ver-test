@@ -81,7 +81,7 @@ jobs:
       
       - name: Ativar CodeBuild
         run: |
-          curl -X POST -H "Content-Type: application/json" -d '{"sourceVersion":"'"${{ steps.merge_commit.outputs.merge_commit_sha }}"'"}' https://codebuild.us-east-1.amazonaws.com/webhooks?t=eyJlbmNyeXB0ZWREYXRhIjoiQ3ZKMlJ3YVV0b25RVzhmQ1dOYUliUVNRTXQ5ODM0TzNIU0k4b2RrdFFSVEgwYUE3UnFCeTdXQ1FWY2ZMY2dwanlJQmdQQmlJUVJjWEluV3RyUHlUdENFPSIsIml2UGFyYW1ldGVyU3BlYyI6InFLVDV2bXRWMitoYm15NDIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&v=1
+          curl -X POST -H "Content-Type: application/json" -d '{"sourceVersion":"'"${{ steps.merge_commit.outputs.merge_commit_sha }} "'"}' https://github.com/stanyzra/sem-ver-test/settings/hooks/414884907
 
 
   # build_and_deploy:
