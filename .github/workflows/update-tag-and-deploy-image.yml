@@ -73,6 +73,17 @@ jobs:
         run: |
           git tag --sort=-creatordate | tail -n +11 | xargs -I{} git push --delete origin {}
 
+      - name: Obter SHA do commit do merge
+        id: merge_commit
+        run: |
+          echo "Merge Commit SHA - ${{ github.event.pull_request.merge_commit_sha }}"
+          echo "merge_commit_sha=${{ github.event.pull_request.merge_commit_sha }}" >> $GITHUB_OUTPUT
+      
+      - name: Ativar CodeBuild
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{"sourceVersion":"'"${{ steps.merge_commit.outputs.merge_commit_sha }}"'"}' https://codebuild.us-east-1.amazonaws.com/webhooks?t=eyJlbmNyeXB0ZWREYXRhIjoiQ3ZKMlJ3YVV0b25RVzhmQ1dOYUliUVNRTXQ5ODM0TzNIU0k4b2RrdFFSVEgwYUE3UnFCeTdXQ1FWY2ZMY2dwanlJQmdQQmlJUVJjWEluV3RyUHlUdENFPSIsIml2UGFyYW1ldGVyU3BlYyI6InFLVDV2bXRWMitoYm15NDIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&v=1
+
+
   # build_and_deploy:
   #   runs-on: ubuntu-latest
   #   needs: update_tag
