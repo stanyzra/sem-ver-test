@@ -60,17 +60,6 @@ jobs:
             git tag -a $NEW_TAG -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: $NEW_TAG"
             git push origin $NEW_TAG
           fi
-          
-      # - name: Verificar número de tags
-      #   id: tags
-      #   run: |
-      #     tags_count=$(git tag --sort=-creatordate | wc -l)
-      #     echo "::set-output name=tag_count::$tags_count"
-
-      # - name: Limpar Tags Antigas
-      #   if: ${{ steps.tags.outputs.tag_count > 10 }}
-      #   run: |
-      #     git tag --sort=-creatordate | tail -n +11 | xargs -I{} git push --delete origin {}
 
   manage-tags:
     runs-on: ubuntu-latest
