@@ -62,27 +62,26 @@ jobs:
             git push origin $NEW_TAG
           fi
           
-      - name: Get Tags Count
+      - name: Check tags number
         id: tags
         run: |
           tags_count=$(git tag --sort=-creatordate | wc -l)
-          echo "tag_count=$tags_count" >> $GITHUB_OUTPUT
+          echo "::set-output name=tag_count::$tags_count"
 
-      - name: Clean Tags
+      - name: Filter tags
+        id: filtered_tags
         if: ${{ steps.tags.outputs.tag_count > 10 }}
         run: |
-          git tag --sort=-creatordate | tail -n +11 | xargs -I{} git push --delete origin {}
+          all_tags=$(git tag --sort=-creatordate)
+          non_rc_tags=$(echo "$all_tags" | grep -vE "\-RC\.[0-9]+")
+          latest_tags=$(echo "$non_rc_tags" | head -n 10)
+          echo "latest_tags=$latest_tags" >> $GITHUB_OUTPUT
 
-      - name: Obter SHA do commit do merge
-        id: merge_commit
+      - name: Clean old tags
+        if: ${{ steps.tags.outputs.tag_count > 10 }}
         run: |
-          echo "Merge Commit SHA - ${{ github.event.pull_request.merge_commit_sha }}"
-          echo "merge_commit_sha=${{ github.event.pull_request.merge_commit_sha }}" >> $GITHUB_OUTPUT
-      
-      - name: Ativar CodeBuild
-        run: |
-          curl -X POST -H "Content-Type: application/json" -d '{"sourceVersion":"'"${{ steps.merge_commit.outputs.merge_commit_sha }} "'"}' https://github.com/stanyzra/sem-ver-test/settings/hooks/414884907
-
+          old_tags=$(echo "${{ steps.filtered_tags.outputs.latest_tags }}" | tail -n +11)
+          echo "$old_tags" | xargs -I{} git push --delete origin {}
 
   # build_and_deploy:
   #   runs-on: ubuntu-latest
