@@ -81,25 +81,16 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.base.ref }}
-      # - name: Get tags
-      #   run: git fetch --prune --unshallow --tags
 
       - name: Limit tags for development branch
         if: github.event.pull_request.base.ref == 'development'
         run: |
-          # git fetch --prune --unshallow --tags
-          # git fetch origin +refs/tags/*:refs/tags/*
-          git tag --sort=-creatordate | grep RC | tail -n +11 | xargs -r git tag -d
+          git tag --sort=-creatordate | grep RC | tail -n +11 | xargs -I{} git push --delete origin {}
 
       - name: Limit tags for main branch
         if: github.event.pull_request.base.ref == 'main'
         run: |
-          # git fetch --prune --unshallow --tags
-          # git fetch origin +refs/tags/*:refs/tags/*
-          git tag --sort=-creatordate | grep -v RC |tail -n +6 | xargs -r git tag -d
-
-      - name: Push updated tags
-        run: git push --tags --force
+          git tag --sort=-creatordate | grep -v RC | tail -n +6 | xargs -I{} git push --delete origin {}
 
   # build_and_deploy:
   #   runs-on: ubuntu-latest
