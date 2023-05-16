@@ -11,7 +11,7 @@ phases:
       REPOSITORY_URI=$ECR_URI/collection-docker-images
   build:
     commands: |
-      echo $CODEBUILD_SOURCE_VERSION
+      echo $CODEBUILD_WEBHOOK_BASE_REF
       echo Getting project tag
       TAG=$(git describe --tags --abbrev=0)
       echo $TAG
