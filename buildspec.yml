@@ -1,12 +1,13 @@
 version: 0.2
-
+env:
+  parameter-store:
+    ECR_URI: "collection-ecr-login"
 phases:
   pre_build:
     commands: |
       echo Logging in to Amazon ECR...
       aws --version
       docker --version
-      ECR_URI=$(aws ssm get-parameter --name collection-ecr-login --with-decryption --query "Parameter.Value" --output text)
       aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URI
       REPOSITORY_URI=$ECR_URI/collection-docker-images
   build:
@@ -17,13 +18,13 @@ phases:
       git fetch origin $BRANCH --tags
       echo Getting project tag
       TAG=$(git describe --tags --abbrev=0)
+      echo Build started on `date`
+      echo Building the Docker image...
+      docker build -t $REPOSITORY_URI:$TAG .
+      docker tag $REPOSITORY_URI:$TAG
+  post_build:
+    commands: |
+      echo Build completed on `date`
+      echo Pushing the Docker images...
       echo $TAG
-  #     echo Build started on `date`
-  #     echo Building the Docker image...
-  #     docker build -t $REPOSITORY_URI:latest .
-  #     docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:teste
-  # post_build:
-  #   commands: |
-  #     echo Build completed on `date`
-  #     echo Pushing the Docker images...
-  #     docker push $REPOSITORY_URI:latest
+      docker push $REPOSITORY_URI:$TAG
