@@ -28,4 +28,4 @@ phases:
       echo Build completed on `date`
       echo Pushing the Docker images...
       echo $TAG
-      docker push $REPOSITORY_URI:$TAG
+      docker push $REPOSITORY_URI:$TAG 
