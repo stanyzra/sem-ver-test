@@ -1,4 +1,5 @@
-FROM node:16-alpine
+# FROM node:16-alpine # Dockerhub tem limite de pull
+FROM public.ecr.aws/docker/library/node:16-alpine
 
 WORKDIR /frontend
 
