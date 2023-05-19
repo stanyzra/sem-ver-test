@@ -27,3 +27,8 @@ phases:
       echo Build completed on `date`
       echo Pushing the Docker images...
       docker push $REPOSITORY_URI:$TAG 
+      echo Writing image definitions file based on branch $BRANCH
+      printf '[{"name": "collection-api-$BRANCH","imageUri": "%s"}]' $REPOSITORY_URI:$TAG > imagedefinitions.json
+
+artifacts:
+  files: imagedefinitions.json
