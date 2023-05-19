@@ -99,6 +99,9 @@ jobs:
       #                                           # file, e.g. .aws/task-definition.json
       # CONTAINER_NAME: MY_CONTAINER_NAME           # set this to the name of the container in the
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
