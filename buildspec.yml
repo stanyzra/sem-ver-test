@@ -11,7 +11,7 @@ phases:
       aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URI
       REPOSITORY_URI=$ECR_URI/collection-docker-images
       echo Getting project branch
-      BRANCH=$(echo $CODEBUILD_WEBHOOK_BASE_REF | cut -d'/' -f3)
+      BRANCH=$(echo $CODEBUILD_SOURCE_VERSION | cut -d'/' -f3)
       echo Checkout to $BRANCH
       git checkout $BRANCH
       git fetch origin $BRANCH --tags
