@@ -28,7 +28,7 @@ jobs:
       - name: PR merged in main
         id: main_versioning
         if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' }}
-        uses: paulhatch/semantic-version@v5.0.2
+        uses: paulhatch/semantic-version@v5.0.3
         with:
           tag_prefix: ""
           major_pattern: "BREAKING CHANGE:"
@@ -38,7 +38,7 @@ jobs:
       - name: PR merged in development
         id: development_versioning
         if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'development' }}
-        uses: paulhatch/semantic-version@v5.0.2
+        uses: paulhatch/semantic-version@v5.0.3
         with:
           tag_prefix: ""
           major_pattern: "BREAKING CHANGE:"
@@ -62,7 +62,7 @@ jobs:
             git push origin $NEW_TAG
           fi
 
-  manage-tags:
+  manage_tags:
     runs-on: ubuntu-latest
     needs: update_tag
     steps:
@@ -85,7 +85,7 @@ jobs:
   build_and_push:
     
     runs-on: ubuntu-latest
-    needs: [manage-tags, update_tag]
+    needs: [manage_tags, update_tag]
     env:
       AWS_REGION: us-east-1                   # set this to your preferred AWS region, e.g. us-west-1
       ECR_REPOSITORY: collection-docker-images           # set this to your Amazon ECR repository name
