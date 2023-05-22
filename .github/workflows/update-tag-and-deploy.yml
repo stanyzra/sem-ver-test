@@ -121,10 +121,12 @@ jobs:
         run: |
           echo Build started on `date`
           echo Building the Docker image...
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:collection-api .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:collection-api $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+          docker build -t collection-api .
+          docker tag collection-api $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           echo Build completed on `date`
           echo Pushing the Docker image...
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:collection-api
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+          # docker push $ECR_REGISTRY/$ECR_REPOSITORY:collection-api
+          # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY
+
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$TAG" >> $GITHUB_OUTPUT
