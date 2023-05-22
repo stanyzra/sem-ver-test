@@ -86,8 +86,7 @@ jobs:
         run: |
           git tag --sort=-creatordate | grep -v RC | tail -n +6 | xargs -I{} git push --delete origin {}
   
-  build_and_push:
-    
+  deploy:
     runs-on: ubuntu-latest
     needs: [manage_tags, update_tag]
     env:
@@ -122,8 +121,10 @@ jobs:
         run: |
           echo Build started on `date`
           echo Building the Docker image...
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:collection-api .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:collection-api $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           echo Build completed on `date`
           echo Pushing the Docker image...
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:collection-api
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$TAG" >> $GITHUB_OUTPUT
