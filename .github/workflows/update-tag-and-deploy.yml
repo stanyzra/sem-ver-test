@@ -14,8 +14,8 @@ permissions:
 jobs:
   update_tag:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+    # env:
+    #   GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
     outputs:
       NEW_TAG: ${{ steps.create_tag.outputs.NEW_TAG }}
       BRANCH: ${{ env.BRANCH_NAME }}
