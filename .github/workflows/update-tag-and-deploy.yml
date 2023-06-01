@@ -86,86 +86,86 @@ jobs:
         run: |
           git tag --sort=-creatordate | grep -v RC | tail -n +6 | xargs -I{} git push --delete origin {}
   
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [manage_tags, update_tag]
-    env:
-      AWS_REGION: us-east-1
-      ECR_REPOSITORY: collection-api
-      ECS_SERVICE: collection-ecs-service
-      ECS_CLUSTER: collection-ecs-cluster
-      ECS_TASK_DEFINITION: .aws/task-definition
-      CONTAINER_NAME: collection-api
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: [manage_tags, update_tag]
+  #   env:
+  #     AWS_REGION: us-east-1
+  #     ECR_REPOSITORY: collection-api
+  #     ECS_SERVICE: collection-ecs-service
+  #     ECS_CLUSTER: collection-ecs-cluster
+  #     ECS_TASK_DEFINITION: .aws/task-definition
+  #     CONTAINER_NAME: collection-api
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Set service name
-        id: service_name
-        run: |
-          if [[ "${{ needs.update_tag.outputs.BRANCH }}" == "main" ]]; then
-            echo "SERVICE_NAME=${{ env.ECS_SERVICE }}-prod" >> $GITHUB_ENV
-          elif [[ "${{ needs.update_tag.outputs.BRANCH }}" == "development" ]]; then
-            echo "SERVICE_NAME=${{ env.ECS_SERVICE }}-dev" >> $GITHUB_ENV
-          fi
+  #     - name: Set service name
+  #       id: service_name
+  #       run: |
+  #         if [[ "${{ needs.update_tag.outputs.BRANCH }}" == "main" ]]; then
+  #           echo "SERVICE_NAME=${{ env.ECS_SERVICE }}-prod" >> $GITHUB_ENV
+  #         elif [[ "${{ needs.update_tag.outputs.BRANCH }}" == "development" ]]; then
+  #           echo "SERVICE_NAME=${{ env.ECS_SERVICE }}-dev" >> $GITHUB_ENV
+  #         fi
 
-      - name: Set task definitions full path
-        id: task_definitions_path
-        run: |
-          if [[ "${{ needs.update_tag.outputs.BRANCH }}" == "main" ]]; then
-            echo "TASK_DEFINITION_PATH=${{ env.ECS_TASK_DEFINITION }}-prod.json" >> $GITHUB_ENV
-          elif [[ "${{ needs.update_tag.outputs.BRANCH }}" == "development" ]]; then
-            echo "TASK_DEFINITION_PATH=${{ env.ECS_TASK_DEFINITION }}-dev.json" >> $GITHUB_ENV
-          fi
+  #     - name: Set task definitions full path
+  #       id: task_definitions_path
+  #       run: |
+  #         if [[ "${{ needs.update_tag.outputs.BRANCH }}" == "main" ]]; then
+  #           echo "TASK_DEFINITION_PATH=${{ env.ECS_TASK_DEFINITION }}-prod.json" >> $GITHUB_ENV
+  #         elif [[ "${{ needs.update_tag.outputs.BRANCH }}" == "development" ]]; then
+  #           echo "TASK_DEFINITION_PATH=${{ env.ECS_TASK_DEFINITION }}-dev.json" >> $GITHUB_ENV
+  #         fi
 
-      - name: Set container name
-        id: container_name
-        run: |
-          if [[ "${{ needs.update_tag.outputs.BRANCH }}" == "main" ]]; then
-            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}-prod" >> $GITHUB_ENV
-          elif [[ "${{ needs.update_tag.outputs.BRANCH }}" == "development" ]]; then
-            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}-dev" >> $GITHUB_ENV
-          fi
+  #     - name: Set container name
+  #       id: container_name
+  #       run: |
+  #         if [[ "${{ needs.update_tag.outputs.BRANCH }}" == "main" ]]; then
+  #           echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}-prod" >> $GITHUB_ENV
+  #         elif [[ "${{ needs.update_tag.outputs.BRANCH }}" == "development" ]]; then
+  #           echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}-dev" >> $GITHUB_ENV
+  #         fi
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.OIDC_AWS_GITHUB }}
-          role-session-name: ECR-ECS-Deploy
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v2
+  #       with:
+  #         aws-region: ${{ env.AWS_REGION }}
+  #         role-to-assume: ${{ secrets.OIDC_AWS_GITHUB }}
+  #         role-session-name: ECR-ECS-Deploy
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v1
       
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          TAG: ${{ needs.update_tag.outputs.NEW_TAG }}
-          BRANCH: ${{ needs.update_tag.outputs.BRANCH }}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          echo Build started on `date`
-          echo Building the Docker image...
-          docker build -t collection-api .
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$TAG .
-          echo Build completed on `date`
-          echo Pushing the Docker image...
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$TAG" >> $GITHUB_OUTPUT
+  #     - name: Build, tag, and push image to Amazon ECR
+  #       id: build-image
+  #       env:
+  #         TAG: ${{ needs.update_tag.outputs.NEW_TAG }}
+  #         BRANCH: ${{ needs.update_tag.outputs.BRANCH }}
+  #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #       run: |
+  #         echo Build started on `date`
+  #         echo Building the Docker image...
+  #         docker build -t collection-api .
+  #         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$TAG .
+  #         echo Build completed on `date`
+  #         echo Pushing the Docker image...
+  #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
+  #         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$TAG" >> $GITHUB_OUTPUT
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ env.TASK_DEFINITION_PATH }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
+  #     - name: Fill in the new image ID in the Amazon ECS task definition
+  #       id: task-def
+  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
+  #       with:
+  #         task-definition: ${{ env.TASK_DEFINITION_PATH }}
+  #         container-name: ${{ env.CONTAINER_NAME }}
+  #         image: ${{ steps.build-image.outputs.image }}
 
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.SERVICE_NAME }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+  #     - name: Deploy Amazon ECS task definition
+  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+  #       with:
+  #         task-definition: ${{ steps.task-def.outputs.task-definition }}
+  #         service: ${{ env.SERVICE_NAME }}
+  #         cluster: ${{ env.ECS_CLUSTER }}
+  #         wait-for-service-stability: true
