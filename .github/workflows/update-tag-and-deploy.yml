@@ -103,18 +103,18 @@ jobs:
       - name: Set service name
         id: service_name
         run: |
-          if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
+          if [[ "${{ needs.update_tag.outputs.BRANCH }}" == "main" ]]; then
             echo "SERVICE_NAME=${{ env.ECS_SERVICE }}-prod" >> $GITHUB_ENV
-          elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
+          elif [[ "${{ needs.update_tag.outputs.BRANCH }}" == "development" ]]; then
             echo "SERVICE_NAME=${{ env.ECS_SERVICE }}-dev" >> $GITHUB_ENV
           fi
 
       - name: Set task definitions full path
         id: task_definitions_path
         run: |
-          if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
+          if [[ "${{ needs.update_tag.outputs.BRANCH }}" == "main" ]]; then
             echo "TASK_DEFINITION_PATH=${{ env.ECS_TASK_DEFINITION }}-prod.json" >> $GITHUB_ENV
-          elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
+          elif [[ "${{ needs.update_tag.outputs.BRANCH }}" == "development" ]]; then
             echo "TASK_DEFINITION_PATH=${{ env.ECS_TASK_DEFINITION }}-dev.json" >> $GITHUB_ENV
           fi
 
