@@ -104,18 +104,18 @@ jobs:
         id: service_name
         run: |
           if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
-            echo "SERVICE_NAME=$ECS_SERVICE-prod" >> $GITHUB_ENV
+            echo "SERVICE_NAME=${{ env.ECS_SERVICE }}-prod" >> $GITHUB_ENV
           elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
-            echo "SERVICE_NAME=$ECS_SERVICE-dev" >> $GITHUB_ENV
+            echo "SERVICE_NAME=${{ env.ECS_SERVICE }}-dev" >> $GITHUB_ENV
           fi
 
       - name: Set task definitions full path
         id: task_definitions_path
         run: |
           if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
-            echo "TASK_DEFINITION_PATH=$ECS_TASK_DEFINITION-prod.json" >> $GITHUB_ENV
+            echo "TASK_DEFINITION_PATH=${{ env.ECS_TASK_DEFINITION }}-prod.json" >> $GITHUB_ENV
           elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
-            echo "TASK_DEFINITION_PATH=$ECS_TASK_DEFINITION-dev.json" >> $GITHUB_ENV
+            echo "TASK_DEFINITION_PATH=${{ env.ECS_TASK_DEFINITION }}-dev.json" >> $GITHUB_ENV
           fi
 
       - name: Configure AWS credentials
@@ -136,6 +136,8 @@ jobs:
           BRANCH: ${{ needs.update_tag.outputs.BRANCH }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
+          echo ${{ env.SERVICE_NAME }}
+          echo ${{ env.TASK_DEFINITION_PATH }}
           echo Build started on `date`
           echo Building the Docker image...
           docker build -t collection-api .
