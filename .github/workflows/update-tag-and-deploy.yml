@@ -95,7 +95,7 @@ jobs:
       ECS_SERVICE: collection-ecs-service
       ECS_CLUSTER: collection-ecs-cluster
       ECS_TASK_DEFINITION: .aws/task-definition
-      CONTAINER_NAME: collection-api-dev          
+      CONTAINER_NAME: collection-api
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -118,6 +118,15 @@ jobs:
             echo "TASK_DEFINITION_PATH=${{ env.ECS_TASK_DEFINITION }}-dev.json" >> $GITHUB_ENV
           fi
 
+      - name: Set container name
+        id: container_name
+        run: |
+          if [[ "${{ needs.update_tag.outputs.BRANCH }}" == "main" ]]; then
+            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}-prod" >> $GITHUB_ENV
+          elif [[ "${{ needs.update_tag.outputs.BRANCH }}" == "development" ]]; then
+            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}-dev" >> $GITHUB_ENV
+          fi
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -136,8 +145,6 @@ jobs:
           BRANCH: ${{ needs.update_tag.outputs.BRANCH }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          echo ${{ env.SERVICE_NAME }}
-          echo ${{ env.TASK_DEFINITION_PATH }}
           echo Build started on `date`
           echo Building the Docker image...
           docker build -t collection-api .
