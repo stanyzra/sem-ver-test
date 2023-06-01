@@ -94,11 +94,29 @@ jobs:
       ECR_REPOSITORY: collection-api
       ECS_SERVICE: collection-ecs-service
       ECS_CLUSTER: collection-ecs-cluster
-      ECS_TASK_DEFINITION: .aws/task-definition.json
+      ECS_TASK_DEFINITION: .aws/task-definition
       CONTAINER_NAME: collection-api-dev          
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Set service name
+        id: service_name
+        run: |
+          if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
+            echo "SERVICE_NAME=$ECS_SERVICE-prod" >> $GITHUB_ENV
+          elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
+            echo "SERVICE_NAME=$ECS_SERVICE-dev" >> $GITHUB_ENV
+          fi
+
+      - name: Set task definitions full path
+        id: task_definitions_path
+        run: |
+          if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then
+            echo "TASK_DEFINITION_PATH=$ECS_TASK_DEFINITION-prod.json" >> $GITHUB_ENV
+          elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
+            echo "TASK_DEFINITION_PATH=$ECS_TASK_DEFINITION-dev.json" >> $GITHUB_ENV
+          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -131,7 +149,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          task-definition: ${{ env.TASK_DEFINITION_PATH }}
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
@@ -139,6 +157,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
+          service: ${{ env.SERVICE_NAME }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
