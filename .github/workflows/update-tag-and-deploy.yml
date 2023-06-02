@@ -11,6 +11,9 @@ permissions:
   id-token: write
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}
+
 jobs:
   update_tag:
     runs-on: ubuntu-latest
