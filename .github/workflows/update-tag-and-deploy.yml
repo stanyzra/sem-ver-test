@@ -14,8 +14,6 @@ permissions:
 jobs:
   update_tag:
     runs-on: ubuntu-latest
-    # env:
-    #   GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
     outputs:
       NEW_TAG: ${{ steps.create_tag.outputs.NEW_TAG }}
       BRANCH: ${{ env.BRANCH_NAME }}
@@ -146,14 +144,15 @@ jobs:
   #         BRANCH: ${{ needs.update_tag.outputs.BRANCH }}
   #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
   #       run: |
+  #         echo ${{ env.TAG }}
   #         echo Build started on `date`
   #         echo Building the Docker image...
   #         docker build -t collection-api .
-  #         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$TAG .
+  #         docker tag collection-api $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}
   #         echo Build completed on `date`
   #         echo Pushing the Docker image...
-  #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
-  #         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$TAG" >> $GITHUB_OUTPUT
+  #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}
+  #         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}" >> $GITHUB_OUTPUT
 
   #     - name: Fill in the new image ID in the Amazon ECS task definition
   #       id: task-def
