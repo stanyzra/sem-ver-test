@@ -144,23 +144,34 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
       
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-        #   TAG: ${{ needs.update_tag.outputs.NEW_TAG }}
-        #   BRANCH: ${{ needs.update_tag.outputs.BRANCH }}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          echo ${{ env.TAG }}
-          echo Build started on `date`
-          echo Building the Docker image...
-          docker build -t collection-api .
-          docker tag collection-api $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}-test
-          echo Build completed on `date`
-          echo Pushing the Docker image...
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}-test
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}-test" >> $GITHUB_OUTPUT
+    #   - name: Build, tag, and push image to Amazon ECR
+    #     id: build-image
+    #     env:
+    #     #   TAG: ${{ needs.update_tag.outputs.NEW_TAG }}
+    #     #   BRANCH: ${{ needs.update_tag.outputs.BRANCH }}
+    #       ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     run: |
+    #       echo ${{ env.TAG }}
+    #       echo Build started on `date`
+    #       echo Building the Docker image...
+    #       docker build -t collection-api .
+    #       docker tag collection-api $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}-test
+    #       echo Build completed on `date`
+    #       echo Pushing the Docker image...
+    #       docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}-test
+    #       echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}-test" >> $GITHUB_OUTPUT
 
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        env: 
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            image: ${{ steps.build-image.outputs.image }}
+        with:
+            context: .
+            push: true
+            tags: ${{ env.ECR_REGISTRY }}/${{ env.image }}:${{ env.TAG }}-test
+            # cache-from: type=gha
+            # cache-to: type=gha,mode=max
     #   - name: Fill in the new image ID in the Amazon ECS task definition
     #     id: task-def
     #     uses: aws-actions/amazon-ecs-render-task-definition@v1
