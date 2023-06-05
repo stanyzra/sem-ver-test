@@ -170,15 +170,24 @@ jobs:
             context: .
             push: true
             tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}-test
-            # cache-from: type=gha
-            # cache-to: type=gha,mode=max
+            # outputs: type=docker, dest=./builded_image.tar
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
+        
+      - name: Export image to GITHUB OUTPUT
+        env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.TAG }}-test" >> $GITHUB_OUTPUT
+        
     #   - name: Fill in the new image ID in the Amazon ECS task definition
     #     id: task-def
     #     uses: aws-actions/amazon-ecs-render-task-definition@v1
     #     with:
     #       task-definition: ${{ env.TASK_DEFINITION_PATH }}
     #       container-name: ${{ env.CONTAINER_NAME }}
-    #       image: ${{ steps.build-image.outputs.image }}
+    #       image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}-test
+          # image: ${{ steps.build-image.outputs.image }}
 
     #   - name: Deploy Amazon ECS task definition
     #     uses: aws-actions/amazon-ecs-deploy-task-definition@v1
