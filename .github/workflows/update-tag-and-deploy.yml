@@ -26,48 +26,68 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_TOKEN }}
+          ref: ${{ github.sha }} # required for better experience using pre-releases
+
 
       - name: Determine branch name
         id: determine-branch-name
         run: echo "BRANCH_NAME=$(echo $GITHUB_REF | sed -e 's,.*/\(.*\),\1,')" >> $GITHUB_ENV
 
+      # - name: PR merged in main
+      #   id: main_versioning
+      #   if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' }}
+      #   uses: paulhatch/semantic-version@v5.0.3
+      #   with:
+      #     tag_prefix: ""
+      #     major_pattern: "BREAKING CHANGE:"
+      #     minor_pattern: "feat:"
+      #     version_format: "${major}.${minor}.${patch}"
+
       - name: PR merged in main
         id: main_versioning
         if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' }}
-        uses: paulhatch/semantic-version@v5.0.3
-        with:
-          tag_prefix: ""
-          major_pattern: "BREAKING CHANGE:"
-          minor_pattern: "feat:"
-          version_format: "${major}.${minor}.${patch}"
+        uses: anothrNick/github-tag-action@1.64.0 # Don't use @master or @v1 unless you're happy to test the latest version
+        env:
+          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+          WITH_V: false
         
+      # - name: PR merged in development
+      #   id: development_versioning
+      #   if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'development' }}
+      #   uses: paulhatch/semantic-version@v5.0.3
+      #   with:
+      #     tag_prefix: ""
+      #     major_pattern: "BREAKING CHANGE:"
+      #     minor_pattern: "feat:"
+      #     version_format: "${major}.${minor}.${patch}-RC.${increment}"
+
       - name: PR merged in development
         id: development_versioning
         if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'development' }}
-        uses: paulhatch/semantic-version@v5.0.3
-        with:
-          tag_prefix: ""
-          major_pattern: "BREAKING CHANGE:"
-          minor_pattern: "feat:"
-          version_format: "${major}.${minor}.${patch}-RC.${increment}"
+        uses: anothrNick/github-tag-action@1.64.0 # Don't use @master or @v1 unless you're happy to test the latest version
+        env:
+          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+          WITH_V: false
+          PRERELEASE: true
+          PRERELEASE_SUFFIX: RC
           
-      - name: Create version tag
-        id: create_tag
-        if: ${{ github.event.pull_request.merged == true }}
-        run: |
-          git config --local user.email "stanyhelberth@gmail.com"
-          git config --local user.name "Collec_CICD" 
-          if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then 
-            echo "NEW_TAG=$(echo ${{ steps.main_versioning.outputs.version }})" >> $GITHUB_OUTPUT
-            git tag -a ${{ steps.main_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ steps.main_versioning.outputs.version }}"
-            git push origin ${{ steps.main_versioning.outputs.version }}
-          elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
-            echo "NEW_TAG=$(echo ${{ steps.development_versioning.outputs.version }})" >> $GITHUB_OUTPUT
-            # NEW_TAG=$(./sum_increment.sh ${{ steps.development_versioning.outputs.increment }} ${{ steps.development_versioning.outputs.version }})
-            echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT 
-            git tag -a ${{ steps.development_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ steps.development_versioning.outputs.version }}"
-            git push origin ${{ steps.development_versioning.outputs.version }}
-          fi
+      # - name: Create version tag
+      #   id: create_tag
+      #   if: ${{ github.event.pull_request.merged == true }}
+      #   run: |
+      #     git config --local user.email "stanyhelberth@gmail.com"
+      #     git config --local user.name "Collec_CICD" 
+      #     if [[ "${{ env.BRANCH_NAME }}" == "main" ]]; then 
+      #       echo "NEW_TAG=$(echo ${{ steps.main_versioning.outputs.version }})" >> $GITHUB_OUTPUT
+      #       git tag -a ${{ steps.main_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ steps.main_versioning.outputs.version }}"
+      #       git push origin ${{ steps.main_versioning.outputs.version }}
+      #     elif [[ "${{ env.BRANCH_NAME }}" == "development" ]]; then
+      #       echo "NEW_TAG=$(echo ${{ steps.development_versioning.outputs.version }})" >> $GITHUB_OUTPUT
+      #       # NEW_TAG=$(./sum_increment.sh ${{ steps.development_versioning.outputs.increment }} ${{ steps.development_versioning.outputs.version }})
+      #       echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT 
+      #       git tag -a ${{ steps.development_versioning.outputs.version }} -m "New Version from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}: ${{ steps.development_versioning.outputs.version }}"
+      #       git push origin ${{ steps.development_versioning.outputs.version }}
+      #     fi
 
   manage_tags:
     runs-on: ubuntu-latest
