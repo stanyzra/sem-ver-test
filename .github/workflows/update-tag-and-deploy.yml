@@ -71,6 +71,7 @@ jobs:
           PRERELEASE: true
           PRERELEASE_SUFFIX: RC
           VERBOSE: true
+          RELEASE_BRANCHES: main,development
 
       # - name: Create version tag
       #   id: create_tag
