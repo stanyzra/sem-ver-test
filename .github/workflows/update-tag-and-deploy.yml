@@ -70,7 +70,8 @@ jobs:
           WITH_V: false
           PRERELEASE: true
           PRERELEASE_SUFFIX: RC
-          
+          VERBOSE: true
+
       # - name: Create version tag
       #   id: create_tag
       #   if: ${{ github.event.pull_request.merged == true }}
