@@ -26,7 +26,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_TOKEN }}
-          ref: ${{ github.sha }} # required for better experience using pre-releases
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
 
       - name: Determine branch name
